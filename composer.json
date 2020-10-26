@@ -1,0 +1,40 @@
+{
+    "name": "amirhs712/rule-builder",
+    "description": "Validation Rule Builder for Laravel",
+    "authors": [
+        {
+            "name": "Amir Hossein Abdollahi",
+            "email": "amirhs712@gmail.com"
+        }
+    ],
+    "keywords": [
+        "laravel",
+        "validation",
+        "rule",
+        "rule-builder"
+    ],
+    "autoload": {
+        "psr-4": {
+            "Amirhs712\\RuleBuilder\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+
+    "extra": {
+        "laravel": {
+        }
+    },
+    "minimum-stability": "dev",
+    "require": {
+        "php": ">=7.1",
+        "illuminate/support": ">=5.3",
+        "illuminate/validation": ">=5.3"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "*"
+    }
+}
