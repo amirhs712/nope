@@ -2,6 +2,7 @@
 
 namespace Amirhs712\RuleBuilder;
 
+use Carbon\Carbon;
 use Illuminate\Support\Str;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
@@ -18,20 +19,20 @@ use RuntimeException;
  * @package Amirhs712\RuleBuilder
  * @method $this accepted() The field under validation must be yes, on, 1, or true. This is useful for validating "Terms of Service" acceptance.
  * @method $this activeUrl() The field under validation must have a valid A or AAAA record according to the dns_get_record PHP function. The hostname of the provided URL is extracted using the parse_url PHP function before being passed to dns_get_record.
- * @method $this after($date) The field under validation must be a value after a given date. The dates will be passed into the strtotime PHP function:
- * @method $this afterOrEqual($date) The field under validation must be a value after or equal to the given date. For more information, see the after rule.
+ * @method $this after(string|Carbon $date) The field under validation must be a value after a given date. The dates will be passed into the strtotime PHP function:
+ * @method $this afterOrEqual(string|Carbon $date) The field under validation must be a value after or equal to the given date. For more information, see the after rule.
  * @method $this alpha() The field under validation must be entirely alphabetic characters.
  * @method $this alphaDash() The field under validation may have alpha-numeric characters, as well as dashes and underscores.
  * @method $this alphaNum() The field under validation must be entirely alpha-numeric characters.
  * @method $this array() The field under validation must be a PHP array.
  * @method $this bail() Stop running validation rules after the first validation failure.
- * @method $this before($date) The field under validation must be a value preceding the given date. The dates will be passed into the PHP strtotime function. In addition, like the after rule, the name of another field under validation may be supplied as the value of date.
- * @method $this beforeOrEqual($date)
+ * @method $this before(string|Carbon $date) The field under validation must be a value preceding the given date. The dates will be passed into the PHP strtotime function. In addition, like the after rule, the name of another field under validation may be supplied as the value of date.
+ * @method $this beforeOrEqual(string|Carbon $date)
  * @method $this between($min, $max) The field under validation must have a size between the given min and max. Strings, numerics, arrays, and files are evaluated in the same fashion as the size rule.
  * @method $this boolean() The field under validation must be able to be cast as a boolean. Accepted input are true, false, 1, 0, "1", and "0".
  * @method $this confirmed() The field under validation must have a matching field of foo_confirmation. For example, if the field under validation is password, a matching password_confirmation field must be present in the input.
  * @method $this date() The field under validation must be a valid, non-relative date according to the strtotime PHP function.
- * @method $this dateEquals($date) The field under validation must be equal to the given date. The dates will be passed into the PHP strtotime function.
+ * @method $this dateEquals(string|Carbon $date) The field under validation must be equal to the given date. The dates will be passed into the PHP strtotime function.
  * @method $this dateFormat($date) The field under validation must match the given format. You should use either date or date_format when validating a field, not both. This validation rule supports all formats supported by PHP's DateTime class.
  * @method $this different($field) The field under validation must have a different value than field.
  * @method $this digits($value) The field under validation must be numeric and must have an exact length of value.
@@ -85,6 +86,7 @@ use RuntimeException;
  * @method $this unique($table, $column = null) The field under validation must not exist within the given database table.
  * @method $this url() The field under validation must be a valid URL.
  * @method $this uuid() The field under validation must be a valid RFC 4122 (version 1, 3, 4, or 5) universally unique identifier (UUID).
+ * @method $this when(bool|callable $condition, callable $callback) Add rules conditionally.
  */
 class Nope
 {
@@ -143,26 +145,6 @@ class Nope
             $this->applyProxyRule(...$arguments);
         } else {
             $this->applyProxyRule(Rule::$method(...$arguments));
-        }
-    }
-
-    protected function requiredIfHandler($firstArgument, $secondArgument = null)
-    {
-        if ($firstArgument === true) {
-            $this->required();
-        } else if ($firstArgument instanceof RequiredIf) {
-            $this->applyProxyRule($firstArgument);
-        } else if (is_callable($firstArgument)) {
-            $this->applyProxyRule(new RequiredIf($firstArgument));
-        } else {
-            $this->apply('requiredIf', $this->buildStringArgument([$firstArgument, $secondArgument]));
-        }
-    }
-
-    protected function rawHandler($rules)
-    {
-        foreach ($this->ensureIsArray($rules) as $rule) {
-            $this->applyProxyRule($rule);
         }
     }
 
@@ -256,5 +238,66 @@ class Nope
         $rules = $this->parseRules(new StringParser());
 
         return implode('|', $rules);
+    }
+
+    //----------------------------------- Custom handlers -----------------------------------------------------------\\
+    protected function requiredIfHandler($firstArgument, $secondArgument = null)
+    {
+        if ($firstArgument === true) {
+            $this->required();
+        } else if ($firstArgument instanceof RequiredIf) {
+            $this->applyProxyRule($firstArgument);
+        } else if (is_callable($firstArgument)) {
+            $this->applyProxyRule(new RequiredIf($firstArgument));
+        } else {
+            $this->apply('requiredIf', $this->buildStringArgument([$firstArgument, $secondArgument]));
+        }
+    }
+
+    protected function rawHandler($rules)
+    {
+        foreach ($this->ensureIsArray($rules) as $rule) {
+            $this->applyProxyRule($rule);
+        }
+    }
+
+    protected function whenHandler($condition, $callback)
+    {
+        $condition = is_callable($condition) ? $condition() : $condition;
+        if ($condition) {
+            $callback($condition);
+        }
+    }
+
+    //--- Custom date handlers
+    protected function applyCarbonRule($name, $value)
+    {
+        $value = $value instanceof Carbon ? $value->toIso8601String() : $value;
+        $this->apply($name, $value);
+    }
+
+    protected function dateEqualsHandler($value)
+    {
+        $this->applyCarbonRule('date_equals', $value);
+    }
+
+    protected function afterHandler($value)
+    {
+        $this->applyCarbonRule('after', $value);
+    }
+
+    protected function afterOrEqualHandler($value)
+    {
+        $this->applyCarbonRule('after_or_equal', $value);
+    }
+
+    protected function beforeHandler($value)
+    {
+        $this->applyCarbonRule('before', $value);
+    }
+
+    protected function beforeOrEqualHandler($value)
+    {
+        $this->applyCarbonRule('before_or_equal', $value);
     }
 }

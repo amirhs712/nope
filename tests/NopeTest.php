@@ -6,8 +6,10 @@
 namespace Tests;
 
 use Amirhs712\RuleBuilder\Nope;
+use Carbon\Carbon;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\RequiredIf;
+use PhpParser\Node\Stmt\Nop;
 use stdClass;
 
 class NopeTest extends \PHPUnit\Framework\TestCase
@@ -54,4 +56,17 @@ class NopeTest extends \PHPUnit\Framework\TestCase
         $object = new stdClass();
         self::assertEquals(['string', $object, 'sometimes', 'nullable'], Nope::string()->raw($object)->toArray(-2));
     }
+
+    public static function testDateRules()
+    {
+        $date = Carbon::now();
+        self::assertEquals("before:" . $date->toIso8601String(), Nope::before($date)->get());
+        self::assertEquals("before_or_equal:" . $date->toIso8601String(), Nope::beforeOrEqual($date)->get());
+        self::assertEquals("date_equals:" . $date->toIso8601String(), Nope::dateEquals($date)->get());
+        self::assertEquals("date_equals:tomorrow", Nope::dateEquals('tomorrow')->get());
+        self::assertEquals("after:" . $date->toIso8601String(), Nope::after($date)->get());
+        self::assertEquals("after_or_equal:" . $date->toIso8601String(), Nope::afterOrEqual($date)->get());
+    }
+
+
 }
