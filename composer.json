@@ -14,6 +14,9 @@
         "rule-builder"
     ],
     "autoload": {
+        "files": [
+            "src/Helpers.php"
+        ],
         "psr-4": {
             "Amirhs712\\RuleBuilder\\": "src"
         }
@@ -23,9 +26,9 @@
             "Tests\\": "tests/"
         }
     },
-
     "extra": {
         "laravel": {
+
         }
     },
     "minimum-stability": "dev",
