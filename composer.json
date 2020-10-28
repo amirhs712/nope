@@ -13,6 +13,8 @@
         "rule",
         "rule-builder"
     ],
+    "type": "utility",
+    "license": "MIT",
     "autoload": {
         "files": [
             "src/Helpers.php"
@@ -28,7 +30,6 @@
     },
     "extra": {
         "laravel": {
-
         }
     },
     "minimum-stability": "dev",
