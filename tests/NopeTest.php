@@ -36,7 +36,6 @@ class NopeTest extends \PHPUnit\Framework\TestCase
         (Rule::unique('table', 'column')->ignore('ignoredId', 'ignoredColumn'))->get());
     }
 
-
     public static function testRequiredIf()
     {
         $trueCallback = function () {
@@ -60,18 +59,20 @@ class NopeTest extends \PHPUnit\Framework\TestCase
     public static function testDateRules()
     {
         $date = Carbon::now();
-        self::assertEquals("before:" . $date->toIso8601String(), nope()->before($date)->get());
-        self::assertEquals("before_or_equal:" . $date->toIso8601String(), nope()->beforeOrEqual($date)->get());
-        self::assertEquals("date_equals:" . $date->toIso8601String(), nope()->dateEquals($date)->get());
+        $isoString = $date->toIso8601String();
+
+        self::assertEquals("before:" . $isoString, nope()->before($date)->get());
+        self::assertEquals("before_or_equal:" . $isoString, nope()->beforeOrEqual($date)->get());
+        self::assertEquals("date_equals:" . $isoString, nope()->dateEquals($date)->get());
         self::assertEquals("date_equals:tomorrow", nope()->dateEquals('tomorrow')->get());
-        self::assertEquals("after:" . $date->toIso8601String(), nope()->after($date)->get());
-        self::assertEquals("after_or_equal:" . $date->toIso8601String(), nope()->afterOrEqual($date)->get());
+        self::assertEquals("after:" . $isoString, nope()->after($date)->get());
+        self::assertEquals("after_or_equal:" . $isoString, nope()->afterOrEqual($date)->get());
     }
 
     public function testMinMaxRules()
     {
-        self::assertEquals('string|min:1|max:2', nope()->string(1,2)->get());
-        self::assertEquals('alpha_dash|min:1|max:2', nope()->alphaDash(1,2)->get());
+        self::assertEquals('string|min:1|max:2', nope()->string(1, 2)->get());
+        self::assertEquals('alpha_dash|min:1|max:2', nope()->alphaDash(1, 2)->get());
         self::assertEquals('json|max:30', nope()->json(30)->get());
     }
 }
