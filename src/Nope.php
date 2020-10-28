@@ -41,7 +41,7 @@ use RuntimeException;
  * @method $this distinct() When working with arrays, the field under validation must not have any duplicate values.
  * @method $this email($validator = 'RFCValidation') The field under validation must be formatted as an e-mail address. Available validation styles: [rfc, strict, dns, spoof, filter]
  * @method $this endsWith($arguments) The field under validation must end with one of the given values.
- * @method $this exists($table, $column = null) The field under validation must exist on a given database table. For more information visit the laravel's documentation.
+ * @method $this exists($table, $column = null) The field under validation must exist on a given database table. For more information visit the laravel documentation.
  * @method $this excludeIf($anotherField, $value) The field under validation will be excluded from the request data returned by the validate and validated methods if the anotherfield field is equal to value.
  * @method $this excludeUnless($anotherField, $value) The field under validation will be excluded from the request data returned by the validate and validated methods unless anotherfield's field is equal to value.
  * @method $this file($max = null) The field under validation must be a successfully uploaded file.
@@ -87,6 +87,7 @@ use RuntimeException;
  * @method $this url($min = null, $max = null) The field under validation must be a valid URL.
  * @method $this uuid() The field under validation must be a valid RFC 4122 (version 1, 3, 4, or 5) universally unique identifier (UUID).
  * @method $this when(bool|callable $condition, callable $callback) Add rules conditionally.
+ * @method $this stringOf($max) The field under validation must be a string of $max characters.
  */
 class Nope
 {
@@ -321,6 +322,11 @@ class Nope
         if ($condition) {
             $callback($condition);
         }
+    }
+
+    protected function stringOfHandler($max)
+    {
+        $this->string(null, $max);
     }
 
     //--- Custom date handlers
