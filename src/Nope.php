@@ -249,7 +249,7 @@ class Nope
      * @param int $required
      * @return string
      */
-    public function get($required = 0)
+    public function toString($required = 0)
     {
         $this->handleRequiredOption($required);
         return (string)$this;
@@ -272,7 +272,7 @@ class Nope
      * @param int $required
      * @return array
      */
-    public function toArray($required = 0)
+    public function get($required = 0)
     {
         $this->handleRequiredOption($required);
         return $this->parseRules(new ArrayParser());
