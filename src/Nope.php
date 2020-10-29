@@ -13,6 +13,7 @@ use Illuminate\Validation\Rules\NotIn;
 use Illuminate\Validation\Rules\RequiredIf;
 use Illuminate\Validation\Rules\Unique;
 use RuntimeException;
+use function GuzzleHttp\Promise\inspect;
 
 /**
  * Class Nope
@@ -83,7 +84,7 @@ use RuntimeException;
  * @method $this startsWith() The field under validation must start with one of the given values.
  * @method $this string($min = null, $max = null) The field under validation must be a string. If you would like to allow the field to also be null, you should assign the nullable rule to the field.
  * @method $this timezone() The field under validation must be a valid timezone identifier according to the timezone_identifiers_list PHP function.
- * @method $this unique($table, $column = null) The field under validation must not exist within the given database table.
+ * @method $this unique(string|Unique $table, $column = null) The field under validation must not exist within the given database table.
  * @method $this url($min = null, $max = null) The field under validation must be a valid URL.
  * @method $this uuid() The field under validation must be a valid RFC 4122 (version 1, 3, 4, or 5) universally unique identifier (UUID).
  * @method $this when(bool|callable $condition, callable $callback) Add rules conditionally.
@@ -91,8 +92,6 @@ use RuntimeException;
  */
 class Nope
 {
-    //TODO: Add protected rule to throw an exception in case of undefined method is called inside of __call (custom validation rules must be handled)
-
     protected $appliedRules = [];
     protected $proxyRules = [
         'in' => In::class,
@@ -174,13 +173,21 @@ class Nope
             throw new RuntimeException("0 arguments passed to '$method' rule.");
         }
 
-        $class = $this->proxyRules[$method];
+        $relativeClass = $this->proxyRules[$method];
 
-        if (isset($arguments[0]) && $arguments[0] instanceof $class) {
+        if (isset($arguments[0]) && is_object($arguments[0])) {
+
+            //Check if the passed argument is an instance of $relativeClass.
+            if (!($arguments[0] instanceof $relativeClass)) {
+                throw new RuntimeException("'$method' rule cannot accept " . get_class($arguments[0]));
+            }
+
             $this->applyProxyRule(...$arguments);
-        } else {
-            $this->applyProxyRule(Rule::$method(...$arguments));
+
+            return;
         }
+
+        $this->applyProxyRule(Rule::$method(...$arguments));
     }
 
     protected function handleMinMaxRule($method, $first = null, $second = null)

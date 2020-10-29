@@ -10,11 +10,12 @@ use Carbon\Carbon;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\RequiredIf;
 use PhpParser\Node\Stmt\Nop;
+use RuntimeException;
 use stdClass;
 
 class NopeTest extends \PHPUnit\Framework\TestCase
 {
-    public static function testProxyRules()
+    public function testProxyRules()
     {
         self::assertEquals('in:"1","2","3"', nope()->in([1, 2, 3])->toString());
         self::assertEquals('not_in:"1","2","3"', nope()->notIn([1, 2, 3])->toString());
@@ -23,6 +24,9 @@ class NopeTest extends \PHPUnit\Framework\TestCase
         self::assertEquals('exists:users,username', nope()->exists('App\Models\User', 'username')->toString());
         self::assertEquals('unique:table,column,"ignoredId",ignoredColumn', nope()->unique
         (Rule::unique('table', 'column')->ignore('ignoredId', 'ignoredColumn'))->toString());
+
+        $this->expectException(RuntimeException::class);
+        nope()->in(Rule::exists('users'))->get();
     }
 
     public static function testProxyRulesWithInstances()
@@ -72,14 +76,29 @@ class NopeTest extends \PHPUnit\Framework\TestCase
 
     public function testMinMaxRules()
     {
-        self::assertEquals('string|min:1|max:2', nope()->string(1, 2)->toString());
+        self::assertEquals('alpha|min:1|max:2', nope()->alpha(1, 2)->toString());
         self::assertEquals('alpha_dash|min:1|max:2', nope()->alphaDash(1, 2)->toString());
+        self::assertEquals('alpha_num|min:1|max:2', nope()->alphaNum(1, 2)->toString());
+        self::assertEquals('array|min:1|max:2', nope()->array(1, 2)->toString());
+        self::assertEquals('integer|min:1|max:2', nope()->integer(1, 2)->toString());
+        self::assertEquals('numeric|min:1|max:2', nope()->numeric(1, 2)->toString());
+        self::assertEquals('string|min:1|max:2', nope()->string(1, 2)->toString());
+
+        self::assertEquals('active_url|max:30', nope()->activeUrl(30)->toString());
+        self::assertEquals('file|max:30', nope()->file(30)->toString());
+        self::assertEquals('image|max:30', nope()->image(30)->toString());
         self::assertEquals('json|max:30', nope()->json(30)->toString());
+        self::assertEquals('url|max:30', nope()->url(30)->toString());
     }
 
     public function testStringCustomRules()
     {
         self::assertEquals('string|max:30', nope()->stringOf(30)->toString());
+    }
+
+    public function testUndefinedRule()
+    {
+        self::assertEquals("my_custom_extended_rule:1,2,3,4", nope()->myCustomExtendedRule(1, 2, 3, 4)->toString());
     }
 
 }
