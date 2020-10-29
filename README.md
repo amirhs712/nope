@@ -18,7 +18,7 @@ Require this package with composer using the following command:
 
 ## Usage
 
-I recommend using `nope()` global helper for warning free and complete ide-inspection.
+I recommend using `nope()` global helper for warning-free and complete ide-inspection.
 Also you can use `Amirhs712\RuleBuilder\Nope` class instead.
 
 ```php
@@ -40,8 +40,9 @@ to return the output as a pipe separated string.
 
 ```php
     $rules = [
-        'username' => nope()->stringOf(30)->get(1), //string|max:30|required
-        'password' => nope()->stringOf(30)->get(-2) //string|max:30|sometimes|nullable
+        'username' => nope()->stringOf(30)->toString(1), //string|max:30|required
+
+        'password' => nope()->stringOf(30)->toString(-2) //string|max:30|sometimes|nullable
 ];
 ```
 
@@ -91,6 +92,38 @@ You can use `raw(string|array)` to add raw string rules or validation objects.
 ```
 
 * Note: You cannot call `toString` method if you have validation objects. Doing so will result in an error.
+
+### Conditional rules
+You can use `when` method to add rules conditionally.
+
+```php
+nope()->when($conditionIsMet, function(Nope $nope){
+    $nope->max(100); 
+});
+```
+
+### Laravel constraint builders
+`in`, `notIn`, `dimensions`, `exists`, `unique` methods support both their relative constraint builders and,
+their default values.
+
+```php
+    
+$rules = [
+    'image1' => nope()->dimensions(['width' => 300, 'height' => 300])->get(),
+
+    'image2' => nope()->dimensions(Rule::dimensions()->width(300)->height(300))->get(),
+];
+```
+### Templates
+You can build and define your own rule templates.
+
+__Coming soon!__
+### Undefined methods
+
+Right now there are no limitations for method calls (I could not find a reason to do so), for example you can do 
+```php
+nope()->myCustomExtendedRule($arg1, $arg2,...)->get(); //Results in: ["my_custom_extended_rule:$arg1, $arg2,..."]
+```
 
 ## Alternatives
 You can check [this package](https://github.com/timacdonald/rule-builder) as an alternative, I've implemented some ideas from this package
