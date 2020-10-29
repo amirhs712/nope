@@ -1,6 +1,6 @@
 # Nope
 
-[![Latest Stable Version](https://poser.pugx.org/amirhs712/rule-builder/v/stable)](https://packagist.org/packages/amirhs712/rule-builder) [![Total Downloads](https://poser.pugx.org/amirhs712/rule-builder/downloads)](https://packagist.org/packages/amirhs712/rule-builder) [![License](https://poser.pugx.org/amirhs712/rule-builder/license)](https://packagist.org/packages/amirhs712/rule-builder)
+[![Latest Stable Version](https://poser.pugx.org/amirhs712/rule-builder/v)](https://packagist.org/packages/amirhs712/rule-builder) [![Total Downloads](https://poser.pugx.org/amirhs712/rule-builder/downloads)](https://packagist.org/packages/amirhs712/rule-builder) [![License](https://poser.pugx.org/amirhs712/rule-builder/license)](https://packagist.org/packages/amirhs712/rule-builder)
 
 Nope is a validation rule builder for laravel inspired by `Yup` for javascript.
 
